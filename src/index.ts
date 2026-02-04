@@ -268,9 +268,7 @@ const main = async (): Promise<void> => {
 
   await server.connect(transport);
 
-  const port = process.env.MCP_PORT
-    ? Number(process.env.MCP_PORT)
-    : DEFAULT_PORT;
+  const port = process.env.MCP_PORT ? Number(process.env.MCP_PORT) : 0;
 
   const httpServer = http.createServer(async (req, res) => {
     if (!req.url || !req.url.startsWith("/mcp")) {
@@ -305,8 +303,12 @@ const main = async (): Promise<void> => {
     }
   });
 
-  httpServer.listen(port, "0.0.0.0");
-  console.log(`MCP server listening on http://0.0.0.0:${port}/mcp`);
+  httpServer.listen(port, "0.0.0.0", () => {
+    const addressInfo = httpServer.address();
+    const resolvedPort =
+      addressInfo && typeof addressInfo === "object" ? addressInfo.port : port;
+    console.log(`MCP server listening on http://0.0.0.0:${resolvedPort}/mcp`);
+  });
 };
 
 main().catch((error) => {
