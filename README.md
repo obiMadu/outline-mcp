@@ -31,6 +31,20 @@ Start:
 node dist/index.js
 ```
 
+## CLI flags
+
+- `--stdio` (default when `MCP_PORT` is not set)
+- `--http`
+- `--port <number>` (HTTP only)
+- `-h`, `--help`
+
+Examples:
+
+```bash
+npx @obimadu/outline-mcp --stdio
+npx @obimadu/outline-mcp --http --port 3000
+```
+
 ## Configuration
 
 HTTP transport expects:
