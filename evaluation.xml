@@ -1,0 +1,42 @@
+<evaluation>
+  <qa_pair>
+    <question>What is the name of the first collection sorted by name ASC for this workspace?</question>
+    <answer>InterAssist</answer>
+  </qa_pair>
+  <qa_pair>
+    <question>What is the workspace name and how many collections are returned by collections.list with limit 50? Answer as <name> | collections=<count>.</question>
+    <answer>Outline | collections=2</answer>
+  </qa_pair>
+  <qa_pair>
+    <question>What role is assigned to the authenticated user?</question>
+    <answer>admin</answer>
+  </qa_pair>
+  <qa_pair>
+    <question>What is the email domain of the authenticated user?</question>
+    <answer>example.com</answer>
+  </qa_pair>
+  <qa_pair>
+    <question>What is the title of the most recently updated document overall and its collection name? Answer as <title> | <collection>.</question>
+    <answer>Getting Started | Welcome</answer>
+  </qa_pair>
+  <qa_pair>
+    <question>What is the creator email for the most recently updated document overall?</question>
+    <answer>admin@example.com</answer>
+  </qa_pair>
+  <qa_pair>
+    <question>What is the name of the user who last updated the most recently updated document overall?</question>
+    <answer>admin</answer>
+  </qa_pair>
+  <qa_pair>
+    <question>What is the title of the most recently updated document in the first collection sorted by name ASC?</question>
+    <answer>PRDs</answer>
+  </qa_pair>
+  <qa_pair>
+    <question>What is the title of the oldest updated document in the first collection sorted by name ASC?</question>
+    <answer>MVP</answer>
+  </qa_pair>
+  <qa_pair>
+    <question>For the first collection sorted by name ASC, is sharing enabled? Answer true or false.</question>
+    <answer>true</answer>
+  </qa_pair>
+</evaluation>
