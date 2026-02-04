@@ -198,6 +198,18 @@ const normalizeBaseUrlFromHeader = (serverUrl: string): string => {
   return `${normalized}/api`;
 };
 
+const normalizeBaseUrlFromEnv = (baseUrl: string): string => {
+  const trimmed = baseUrl.trim();
+  if (!trimmed) {
+    throw new Error("OUTLINE_BASE_URL is empty");
+  }
+  const normalized = trimmed.endsWith("/") ? trimmed.slice(0, -1) : trimmed;
+  if (normalized.endsWith("/api")) {
+    return normalized;
+  }
+  return `${normalized}/api`;
+};
+
 const resolveRequestConfig = (
   transportMode: string,
   envBaseUrl: string | undefined,
@@ -208,7 +220,10 @@ const resolveRequestConfig = (
     if (!envApiKey) {
       throw new Error("OUTLINE_API_KEY is required for stdio mode");
     }
-    return { baseUrl: envBaseUrl ?? DEFAULT_BASE_URL, apiKey: envApiKey };
+    const baseUrl = envBaseUrl
+      ? normalizeBaseUrlFromEnv(envBaseUrl)
+      : DEFAULT_BASE_URL;
+    return { baseUrl, apiKey: envApiKey };
   }
 
   const serverUrlHeader = getHeaderValue(headers, "x-server-url");
