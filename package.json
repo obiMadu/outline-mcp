@@ -9,6 +9,9 @@
     "README.md",
     "LICENSE"
   ],
+  "bin": {
+    "outline-mcp": "dist/index.js"
+  },
   "license": "MIT",
   "publishConfig": {
     "access": "public"
