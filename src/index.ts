@@ -9,6 +9,78 @@ import { z } from "zod";
 const DEFAULT_BASE_URL = "https://app.getoutline.com/api";
 const DEFAULT_PORT = 3000;
 
+type CliOptions = {
+  transportMode?: "http" | "stdio";
+  port?: number;
+  showHelp?: boolean;
+};
+
+const getHelpText = (): string =>
+  [
+    "Outline MCP Server",
+    "",
+    "Usage:",
+    "  outline-mcp [--stdio] [--http] [--port <number>]",
+    "",
+    "Options:",
+    "  --stdio        Run with stdio transport (default when MCP_PORT is not set)",
+    "  --http         Run with Streamable HTTP transport",
+    "  --port <n>     Port for HTTP mode (0 = random)",
+    "  -h, --help     Show this help message",
+    "",
+    "Environment:",
+    "  MCP_TRANSPORT  Overrides transport mode (http or stdio)",
+    "  MCP_PORT       Port for HTTP mode",
+    "  OUTLINE_API_KEY",
+    "  OUTLINE_BASE_URL",
+    ""
+  ].join("\n");
+
+const parsePort = (value: string): number => {
+  const parsed = Number(value);
+  if (!Number.isInteger(parsed) || parsed < 0 || parsed > 65535) {
+    throw new Error(`Invalid port value: ${value}`);
+  }
+  return parsed;
+};
+
+const parseCliOptions = (argv: string[]): CliOptions => {
+  const options: CliOptions = {};
+  for (let index = 2; index < argv.length; index += 1) {
+    const arg = argv[index];
+    if (arg === "--http") {
+      options.transportMode = "http";
+      continue;
+    }
+    if (arg === "--stdio") {
+      options.transportMode = "stdio";
+      continue;
+    }
+    if (arg === "-h" || arg === "--help") {
+      options.showHelp = true;
+      continue;
+    }
+    if (arg === "--port") {
+      const value = argv[index + 1];
+      if (!value) {
+        throw new Error("--port requires a value");
+      }
+      options.port = parsePort(value);
+      index += 1;
+      continue;
+    }
+    if (arg.startsWith("--port=")) {
+      const value = arg.slice("--port=".length);
+      if (!value) {
+        throw new Error("--port requires a value");
+      }
+      options.port = parsePort(value);
+      continue;
+    }
+  }
+  return options;
+};
+
 const normalizeBaseUrl = (baseUrl: string): string =>
   baseUrl.endsWith("/") ? baseUrl : `${baseUrl}/`;
 
@@ -218,6 +290,11 @@ const registerTools = (
 };
 
 const main = async (): Promise<void> => {
+  const cliOptions = parseCliOptions(process.argv);
+  if (cliOptions.showHelp) {
+    console.log(getHelpText());
+    return;
+  }
   const envApiKey = process.env.OUTLINE_API_KEY;
   const envBaseUrl = process.env.OUTLINE_BASE_URL;
   const serverName = "outline";
@@ -228,7 +305,10 @@ const main = async (): Promise<void> => {
     version: serverVersion
   });
 
-  const transportMode = process.env.MCP_TRANSPORT ?? "http";
+  const transportMode =
+    cliOptions.transportMode ??
+    process.env.MCP_TRANSPORT ??
+    (process.env.MCP_PORT || cliOptions.port ? "http" : "stdio");
   registerTools(server, transportMode, envBaseUrl, envApiKey);
 
   server.registerResource(
@@ -268,7 +348,9 @@ const main = async (): Promise<void> => {
 
   await server.connect(transport);
 
-  const port = process.env.MCP_PORT ? Number(process.env.MCP_PORT) : 0;
+  const envPortValue = process.env.MCP_PORT;
+  const envPort = envPortValue ? parsePort(envPortValue) : undefined;
+  const port = cliOptions.port ?? envPort ?? 0;
 
   const httpServer = http.createServer(async (req, res) => {
     if (!req.url || !req.url.startsWith("/mcp")) {
